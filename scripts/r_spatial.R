@@ -90,7 +90,7 @@ ggplot() +
 # study area = red line, not filled (not fill=color)
 # lake = light blue
 # rivers are blue
-ggplot() +
+woody_map<-ggplot() +
   tidyterra::geom_spatraster(data=woodybiom) +
   scale_fill_gradientn(colors=rev(terrain.colors(6)),
                        limits=c(0.77,6.55), # see in qgis
@@ -103,17 +103,69 @@ ggplot() +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
-                             fill=NA,color="blue",linewidth=0.5)
+                             fill=NA,color="blue",linewidth=0.5) +
+  labs(title="Woody biomass") + 
+  coord_sf(xlimits,ylimits,datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+
+woody_map
+
+# make elevation map and show it
+elevation_map<-ggplot() +
+  tidyterra::geom_spatraster(data=elevation) +
+  scale_fill_gradientn(colors=terrain.colors(10),
+                       limits=c(500,2100), # see in qgis
+                       oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
+                       name="Meters") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,color="red",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             fill=NA,color="blue",linewidth=0.5) +
+  labs(title="Elevation") + 
+  coord_sf(xlimits,ylimits,datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+
+elevation_map
+
+# can put them together, but not really nice
+woody_map + elevation_map
 
 # plot the rainfall map
+rainfall_map<-ggplot() +
+  tidyterra::geom_spatraster(data=rainfall) +
+  scale_fill_gradientn(colors=pal_zissou1,
+                       limits=c(625,1375), # see in qgis
+                       oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
+                       name="mm/year") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,color="green",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             fill=NA,color="blue",linewidth=0.5) +
+  labs(title="Rainfall") + 
+  coord_sf(xlimits,ylimits,datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+
+rainfall_map
 
 
 
-# plot the elevation map
 
+# combine the different maps into one composite map using the patchwork library and save it to a high resolution png
 
-
-# combine the different maps  into one composite map using the patchwork library and save it to a high resolution png
 
 
 ############################
