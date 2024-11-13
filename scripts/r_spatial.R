@@ -162,20 +162,52 @@ rainfall_map<-ggplot() +
 rainfall_map
 
 
-
+# can put them together, but not really nice
+woody_map + elevation_map + rainfall_map
 
 # combine the different maps into one composite map using the patchwork library and save it to a high resolution png
-
+all_maps<- woody_map + elevation_map + rainfall_map +
+  patchwork::plot_layout(ncol=2) # ncol places on top / next to each other, 3 means the 3 are next to each other and 1 means all are on top of each other 
+all_maps
+# save the plots, already done once
+# ggsave("./figures/all_maps.png",width = 18, height = 18, units = "cm", dpi=300)
 
 
 ############################
+
+
 ### explore your study area
 # set the limits of your study area
 xlimits<-sf::st_bbox(studyarea)[c(1,3)]
 ylimits<-sf::st_bbox(studyarea)[c(2,4)]
 saExt<-terra::ext(studyarea)
+saExt # why are the last four 0? UTM of 10 km
 
 # crop the woody biomass to the extent of the studyarea
+woodybiom_sa<-terra::crop(woodybiom,saExt)
+
+woody_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=woodybiom_sa) +
+  scale_fill_gradientn(colors=rev(terrain.colors(6)),
+                       limits=c(0.77,6.55), # see in qgis
+                       oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
+                       name="TBA/ha") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             fill=NA,color="blue",linewidth=0.5) +
+  labs(title="Woody biomass") + 
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+
+woody_map_sa
 
 
 # plot the woody biomass
@@ -185,19 +217,38 @@ saExt<-terra::ext(studyarea)
 
 # create 500 random points in our study area
 
-
 # and add them to the previous map
 
 # make distance to river map
+# dist2river_sa<-terra::rast("./_MyData/rivers/DistanceToRiver.tif")
+dist2river_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/2022_rivers/DistanceToRiver20sqm.tif")
 
-
+map_dist2river_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=dist2river_sa/200) +
+  scale_fill_gradientn(colours = pal_zissou2,
+                       limits=c(0,10),
+                       oob=squish,
+                       name="Kilometers") +
+  tidyterra::geom_spatvector(data = protected_areas,fill=NA, linewidth=0.7) +
+  tidyterra::geom_spatvector(data=rivers,linewidth=0.3,col="blue") +
+  labs(title = "Distance to rivers") +
+  coord_sf(xlim=xlimits,ylim=ylimits, # set bounding box
+           expand=F,
+           datum=sf::st_crs(32736)) +   # keep in original projected coordinates
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +   # Remove axis coordinate labels
+  ggspatial::annotation_scale(  # Add a scale bar
+    location = "bl",             # Position: bottom left
+    width_hint = 0.2)             # Adjust width of the scale bar +
+map_dist2river_sa
 
 ### put all maps together
-
-
+all_maps_sa<-woody_map_sa +map_dist2river_sa +
+  patchwork::plot_layout(ncol=2)
+all_maps_sa
+# ggsave("./figures/all_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
 
 # extract your the values of the different raster layers to the points
-
 
 # make long format
 
