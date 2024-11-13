@@ -28,13 +28,13 @@ mycolors<-c("red","white","blue")
 mycolors
 barplot(rep(1,10), col = rev(topo.colors(10))) # rev turns the scale around
 barplot(rep(1,10), col = rev(terrain.colors(10)))
-library(RColorBrewer) 
+library(RColorBrewer)  # pre divined colors
 RColorBrewer::display.brewer.all()
 barplot(rep(1,10), col = RColorBrewer::brewer.pal(10, "Spectral"))
 
 barplot(rep(1,10), col = RColorBrewer::brewer.pal(10, "BrBG"))
 library(viridis)
-barplot(rep(1,10), col = viridis::viridis(10))
+barplot(rep(1,10), col = rev(viridis::viridis(10)))
 barplot(rep(1,10), col = viridis::plasma(10))
 barplot(rep(1,10), col = viridis::heat(10))
 viridis::plasma(10)
@@ -58,7 +58,6 @@ sf::st_layers("./studyarea/studyarea.gpkg")
 studyarea<-terra::vect("./studyarea/studyarea.gpkg",
                               layer="my_study_area")
 
-
 # load the raster data for the whole ecosystem
 woodybiom<-terra::rast("./2016_WoodyVegetation/TBA_gam_utm36S.tif")
 hillshade<-terra::rast("./2023_elevation/hillshade_z5.tif")
@@ -67,14 +66,44 @@ elevation<-terra::rast("./2023_elevation/elevation_90m.tif")
 
 # inspect the data 
 class(protected_areas)
+class(elevation) # see if it is raster or vector
+plot(protected_areas)
+plot(elevation)
+plot(protected_areas,add=T) # plot on top of eachother
 
 # set the limits of the map to show (xmin, xmax, ymin, ymax in utm36 coordinates)
 xlimits<-c(550000,900000)
 ylimits<-c(9600000,9950000)
 
 # plot the woody biomass map that you want to predict
+plot(woodybiom) # scale is smaller, can better change with ggplot (easier)
+ggplot() +
+  tidyterra::geom_spatraster(data=woodybiom) +
+  scale_fill_gradientn(colors=rev(terrain.colors(6)),
+                       limits=c(0.77,6.55), # see in qgis
+                       oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
+                       name="TBA/ha") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5)
 
-
+# add study area, rivers and lakes.
+# study area = red line, not filled (not fill=color)
+# lake = light blue
+# rivers are blue
+ggplot() +
+  tidyterra::geom_spatraster(data=woodybiom) +
+  scale_fill_gradientn(colors=rev(terrain.colors(6)),
+                       limits=c(0.77,6.55), # see in qgis
+                       oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
+                       name="TBA/ha") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,color="red",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             fill=NA,color="blue",linewidth=0.5)
 
 # plot the rainfall map
 
