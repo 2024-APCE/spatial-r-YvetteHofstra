@@ -209,14 +209,9 @@ woody_map_sa<-ggplot() +
 
 woody_map_sa
 
-
-# plot the woody biomass
-
-
 # make maps also for the other layers that you found
 
 # create 500 random points in our study area
-
 # and add them to the previous map
 
 # make distance to river map
@@ -243,10 +238,39 @@ map_dist2river_sa<-ggplot() +
 map_dist2river_sa
 
 ### put all maps together
-all_maps_sa<-woody_map_sa +map_dist2river_sa +
+all_maps_sa<-woody_map_sa + map_dist2river_sa +
   patchwork::plot_layout(ncol=2)
 all_maps_sa
 # ggsave("./figures/all_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
+
+# make a soil fertility map
+soil_fertility_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/Soil fertility/CEC_5_15cm_SoilFertility.tif")
+
+map_soil_fertility_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=soil_fertility_sa) +
+  scale_fill_gradientn(colours = pal_zissou2,
+                       limits=c(121,301),
+                       oob=squish,
+                       name="Soil fertility") +
+  tidyterra::geom_spatvector(data = protected_areas,fill=NA, linewidth=0.7) +
+  tidyterra::geom_spatvector(data=rivers,linewidth=0.3,col="blue") +
+  labs(title = "Soil fertility") +
+  coord_sf(xlim=xlimits,ylim=ylimits, # set bounding box
+           expand=F,
+           datum=sf::st_crs(32736)) +   # keep in original projected coordinates
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +   # Remove axis coordinate labels
+  ggspatial::annotation_scale(  # Add a scale bar
+    location = "bl",             # Position: bottom left
+    width_hint = 0.2)             # Adjust width of the scale bar +
+map_soil_fertility_sa
+
+
+more_maps_sa<-woody_map_sa + map_dist2river_sa + map_soil_fertility_sa +
+  patchwork::plot_layout(ncol=2)
+more_maps_sa
+# ggsave("./figures/more_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
+
 
 # extract your the values of the different raster layers to the points
 
