@@ -3,7 +3,7 @@
 
 rm(list = ls())
 # set the working directory where your GIS data are located
-setwd("G:/Shared drives/_Org OlffLab/Teaching/APCE/APCE2024/APCE2024GIS")
+setwd("C:/APCE 2024/APCE 2024 GIS/apce2024gis")
 
 # restore the libraries of the project 
 renv::restore()
@@ -23,7 +23,10 @@ library(patchwork)  # for combining multiple ggplots in one panel plot
 # also see https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
 # Base R palettes
 barplot(rep(1,10), col = grey.colors(10))
-barplot(rep(1,10), col = rev(topo.colors(10))) # rev turns the scale arround
+grey.colors(10)  # shows hexadecimal codes
+mycolors<-c("red","white","blue")
+mycolors
+barplot(rep(1,10), col = rev(topo.colors(10))) # rev turns the scale around
 barplot(rep(1,10), col = rev(terrain.colors(10)))
 library(RColorBrewer) 
 RColorBrewer::display.brewer.all()
@@ -65,19 +68,23 @@ elevation<-terra::rast("./2023_elevation/elevation_90m.tif")
 # inspect the data 
 class(protected_areas)
 
-
 # set the limits of the map to show (xmin, xmax, ymin, ymax in utm36 coordinates)
 xlimits<-c(550000,900000)
 ylimits<-c(9600000,9950000)
 
 # plot the woody biomass map that you want to predict
 
+
+
 # plot the rainfall map
+
+
 
 # plot the elevation map
 
-# combine the different maps  into one composite map using the patchwork library
-# and save it to a high resolution png
+
+
+# combine the different maps  into one composite map using the patchwork library and save it to a high resolution png
 
 
 ############################
