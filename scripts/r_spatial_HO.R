@@ -67,6 +67,7 @@ hillshade<-terra::rast("./2023_elevation/hillshade_z5.tif")
 rainfall<-terra::rast("./rainfall/CHIRPS_MeanAnnualRainfall.tif")
 elevation<-terra::rast("./2023_elevation/elevation_90m.tif")
 
+
 # inspect the data 
 class(protected_areas)
 class(elevation)
