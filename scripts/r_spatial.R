@@ -520,13 +520,17 @@ landform_h_points
 
 
 # merge the different variable into a single table
-# use woody biomass as the last variable
+# use woody biomass as the last variable as that makes reading easier
 pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
                  CorProtAr_points[,2],rainfall_points[,2], 
                  cec_points[,2],burnfreq_points[,2],
                  landform_h_points[,2],woody_points[,2]) |>
   as_tibble()
 pointdata
+
+# no NA values, but my study area is fine already
+pointdata<-pointdata[complete.cases(pointdata),]
+complete.cases(pointdata)
 
 # plot how woody cover is predicted by different variables
 # Create a correlation panel plot
@@ -553,7 +557,7 @@ pointdata_long
 ggplot(data=pointdata_long, mapping=aes(x=pred_val,y=woody,group=pred_var)) +
   geom_point() +
   geom_smooth() +
-  ylim(0,40) +
+  ylim(-1,15) +
   facet_wrap(~pred_var,scales="free") 
 
 # do a pca
