@@ -184,7 +184,7 @@ saExt<-terra::ext(studyarea)
 saExt # why are the last four 0? UTM of 10 km
 
 # crop the woody biomass to the extent of the studyarea
-woodybiom_sa<-terra::crop(woodybiom,saExt)
+woody_sa<-terra::crop(woodybiom,saExt)
 
 woody_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=woodybiom_sa) +
@@ -215,7 +215,7 @@ woody_map_sa
 elevation_sa<-terra::crop(elevation,saExt) # crop to study area
 
 elevation_map_sa<-ggplot() +
-  tidyterra::geom_spatraster(data=elevation) +
+  tidyterra::geom_spatraster(data=elevation_sa) +
   scale_fill_gradientn(colours=terrain.colors(10),
                        limits=c(1300,2100),
                        oob=squish,
@@ -478,10 +478,110 @@ all_maps_sa<-woody_map_sa +dist2river_map_sa + elevation_map_sa +
 all_maps_sa
 # ggsave("./figures/all_maps_sa.png", width = 297, height = 210, units = "mm",dpi=300)
 
-# extract your the values of the different raster layers to the points
 
-# make long format
+#########################
+
+
+# extract your the values of the different raster layers to the points
+# Extract raster values at the points
+woody_points <- terra::extract(woody_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(woody=TBA_gam_utm36s)
+woody_points
+dist2river_points <- terra::extract(dist2river_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(dist2river=distance)
+dist2river_points
+elevation_points <- terra::extract(elevation, rpoints) |> 
+  as_tibble() 
+elevation_points
+CorProtAr_points <- terra::extract(CoreProtectedAreas_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(CorProtAr=CoreProtectedAreas)
+CorProtAr_points
+rainfall_points <- terra::extract(rainfall_sa, rpoints) |> 
+  as_tibble() |> 
+  dplyr::rename(rainfall=CHIRPS_MeanAnnualRainfall)
+rainfall_points
+cec_points <- terra::extract(cec_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(cec='cec_5-15cm_mean')
+cec_points
+burnfreq_points <- terra::extract(burnfreq_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(burnfreq=burned_sum)
+burnfreq_points
+landform_h_points <- terra::extract(landform_h_sa, rpoints) |> 
+  as_tibble() |>
+  dplyr::rename(hills=remapped)
+landform_h_points
+
+
+
+
+# merge the different variable into a single table
+# use woody biomass as the last variable
+pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
+                 CorProtAr_points[,2],rainfall_points[,2], 
+                 cec_points[,2],burnfreq_points[,2],
+                 landform_h_points[,2],woody_points[,2]) |>
+  as_tibble()
+pointdata
 
 # plot how woody cover is predicted by different variables
+# Create a correlation panel plot
+library(psych)
+psych::pairs.panels(
+  pointdata ,
+  method = "pearson",     # Correlation method (use "spearman" for rank correlation)
+  hist.col = "lightblue",  # Color for histograms
+  density = TRUE,          # Add density plots
+  ellipses = F,         # Add correlation ellipses
+  lm = TRUE,                # Add linear regression lines
+  stars=T
+)
+
+# make long format
+names(pointdata)
+pointdata_long<-pivot_longer(data=pointdata,
+                             cols = dist2river:hills, # all except woody
+                             names_to ="pred_var",
+                             values_to = "pred_val")
+pointdata_long
+
+# panel plot
+ggplot(data=pointdata_long, mapping=aes(x=pred_val,y=woody,group=pred_var)) +
+  geom_point() +
+  geom_smooth() +
+  ylim(0,40) +
+  facet_wrap(~pred_var,scales="free") 
+
+# do a pca
+# Load the vegan package
+library(vegan)
+# Perform PCA using the rda() function
+pca_result <- vegan::rda(pointdata,
+                         scale = TRUE)
+# Display a summary of the PCA
+summary(pca_result)
+
+# Plot the PCA
+plot(pca_result, scaling = 2, type="n", xlab="",ylab="")  # Use scaling = 1 for distance preservation, scaling = 2 for correlations
+# Add points for samples
+points(pca_result, display = "sites", pch=pointdata$CorProtAr+1, col = pointdata$hills+1, bg = "blue", cex = 1)
+# Add arrows for variables
+arrows(0, 0, scores(pca_result, display = "species")[, 1], scores(pca_result, display = "species")[, 2], 
+       length = 0.1, col = "red")
+# Label the variables with arrows
+text(scores(pca_result, display = "species")[, 1], scores(pca_result, display = "species")[, 2], 
+     labels = colnames(pointdata), col = "red", cex = 0.8, pos = 4)
+# Add axis labels and a title
+title(main = "PCA Biplot")
+xlabel <- paste("PC1 (", round(pca_result$CA$eig[1] / sum(pca_result$CA$eig) * 100, 1), "%)", sep = "")
+ylabel <- paste("PC2 (", round(pca_result$CA$eig[2] / sum(pca_result$CA$eig) * 100, 1), "%)", sep = "")
+title(xlab=xlabel)
+title(ylab=ylabel)
+# add contours for woody cover
+vegan::ordisurf(pca_result, pointdata$woody, add = TRUE, col = "green4")
 
 
