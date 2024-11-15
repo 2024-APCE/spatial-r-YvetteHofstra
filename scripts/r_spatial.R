@@ -394,12 +394,12 @@ landform_map_vp_sa<-ggplot() +
 landform_map_vp_sa
 # ggsave("./figures/landform_map_vp_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
-# landform valleys and plains
+# landform valleys 
 landform_v_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Landforms/valleys.tif")
 landform_map_v_sa<-ggplot() +
   tidyterra::geom_spatraster(data=as.factor(landform_v_sa)) +
   scale_fill_manual(values=c("black","orange"),
-                    labels=c("valleys\nand\nplains","hills")) +
+                    labels=c("other","valleys")) +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.7) +
   tidyterra::geom_spatvector(data=studyarea,
@@ -443,6 +443,7 @@ CoreProtectedAreas_map_sa<-ggplot() +
         axis.ticks = element_blank()) +
   ggspatial::annotation_scale(location="bl",width_hint=0.2)
 CoreProtectedAreas_map_sa
+# ggsave("./figures/CoreProtectedAreas_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
 # create 250 random points in your study area
 set.seed(123)
@@ -467,6 +468,7 @@ rpoints_map_sa<-ggplot() +
         axis.ticks = element_blank()) +
   ggspatial::annotation_scale(location="bl",width_hint=0.2)
 rpoints_map_sa
+# ggsave("./figures/rpoints_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
 # combine the maps with patchwork
 all_maps_sa<-woody_map_sa +dist2river_map_sa + elevation_map_sa + 
