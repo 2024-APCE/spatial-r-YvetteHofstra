@@ -300,10 +300,6 @@ evenmore_maps_sa<-woody_map_sa + map_dist2river_sa + map_soil_fertility_sa + map
 evenmore_maps_sa
 # ggsave("./figures/evenmore_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
 
-
-
-
-
 # extract your the values of the different raster layers to the points
 
 # make long format
