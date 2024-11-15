@@ -176,7 +176,7 @@ all_maps
 ############################
 
 
-### explore your study area
+### explore your study area #############
 # set the limits of your study area
 xlimits<-sf::st_bbox(studyarea)[c(1,3)]
 ylimits<-sf::st_bbox(studyarea)[c(2,4)]
@@ -208,97 +208,273 @@ woody_map_sa<-ggplot() +
   ggspatial::annotation_scale(location="bl",width_hint=0.2)
 
 woody_map_sa
+# ggsave("./figures/woody_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
-# make maps also for the other layers that you found
 
-# create 500 random points in our study area
-# and add them to the previous map
+# Elevation map
+elevation_sa<-terra::crop(elevation,saExt) # crop to study area
+
+elevation_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=elevation) +
+  scale_fill_gradientn(colours=terrain.colors(10),
+                       limits=c(1300,2100),
+                       oob=squish,
+                       name="meters") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="elevation") +
+  coord_sf(xlimits,ylimits,datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+elevation_map_sa
+# ggsave("./figures/elevation_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+
+# plot the rainfall map study area
+# plot rainfall map for the study area
+# first you need to increase the raster resolution to 30 m
+# Define the extent and resolution for the new raster
+rainfall_30m <- rast(terra::ext(rainfall), resolution = 30, crs = crs(rainfall))
+# Resample the raster to 30m resolution
+rainfall_30m <- terra::resample(rainfall, rainfall_30m, method = "bilinear")  
+rainfall_sa<-terra::crop(rainfall_30m,saExt) # crop to study area
+rainfall_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=rainfall_sa) +
+  scale_fill_gradientn(colours=pal_zissou1,
+                       limits=c(650,1000),
+                       oob=squish,
+                       name="mm/yr") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Rainfall") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+rainfall_map_sa
+# ggsave("./figures/rainfall_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
 # make distance to river map
 # dist2river_sa<-terra::rast("./_MyData/rivers/DistanceToRiver.tif")
 dist2river_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/2022_rivers/DistanceToRiver20sqm.tif")
 
-map_dist2river_sa<-ggplot() +
-  tidyterra::geom_spatraster(data=dist2river_sa/200) +
-  scale_fill_gradientn(colours = pal_zissou2,
-                       limits=c(0,10),
+dist2river_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=dist2river_sa) +
+  scale_fill_gradientn(colours=topo.colors(6),
+                       limits=c(0,6000),
                        oob=squish,
-                       name="Kilometers") +
-  tidyterra::geom_spatvector(data = protected_areas,fill=NA, linewidth=0.7) +
-  tidyterra::geom_spatvector(data=rivers,linewidth=0.3,col="blue") +
-  labs(title = "Distance to rivers") +
-  coord_sf(xlim=xlimits,ylim=ylimits, # set bounding box
-           expand=F,
-           datum=sf::st_crs(32736)) +   # keep in original projected coordinates
+                       name="meters") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Distance to river") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +   # Remove axis coordinate labels
-  ggspatial::annotation_scale(  # Add a scale bar
-    location = "bl",             # Position: bottom left
-    width_hint = 0.2)             # Adjust width of the scale bar +
-map_dist2river_sa
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+dist2river_map_sa
+# ggsave("./figures/dist2river_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
-### put all maps together
-all_maps_sa<-woody_map_sa + map_dist2river_sa +
-  patchwork::plot_layout(ncol=2)
+
+# burning frequency map from 2001 - 2016
+burnfreq_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Fire/BurnFreq.tif")
+
+burnfreq_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=burnfreq_sa) +
+  scale_fill_gradientn(colours=pal_zissou2,
+                       limits=c(0,16),
+                       oob=squish,
+                       name="years\nburned") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="n years burned") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+burnfreq_map_sa
+# ggsave("./figures/burnfreq_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+# make a soil fertility map
+cec_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/Soil fertility/CEC_5_15cm_SoilFertility.tif")
+hist(cec_sa)
+cec_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=cec_sa) +
+  scale_fill_gradientn(colours=pal_zissou1,
+                       limits=c(121,250),
+                       oob=squish,
+                       name="Soil\nCEC\n5-15cm") +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Soil CEC") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+cec_map_sa
+# ggsave("./figures/cec_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+# landform hills
+landform_h_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Landforms/hills.tif")
+landform_map_h_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=as.factor(landform_h_sa)) +
+  scale_fill_manual(values=c("black","orange"),
+                    labels=c("valleys\nand\nplains","hills")) +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.7) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="green") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Landform hills") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+landform_map_h_sa
+# ggsave("./figures/landform_map_h_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+# landform valleys and plains
+landform_vp_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Landforms/valleysPlains.tif")
+landform_map_vp_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=as.factor(landform_vp_sa)) +
+  scale_fill_manual(values=c("black","orange"),
+                    labels=c("valleys\nand\nplains","hills")) +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.7) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="green") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Landform valleys and plains") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+landform_map_vp_sa
+# ggsave("./figures/landform_map_vp_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+# landform valleys and plains
+landform_v_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Landforms/valleys.tif")
+landform_map_v_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=as.factor(landform_v_sa)) +
+  scale_fill_manual(values=c("black","orange"),
+                    labels=c("valleys\nand\nplains","hills")) +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.7) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="green") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Landform valleys") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+landform_map_v_sa
+# ggsave("./figures/landform_map_v_sa.png",width = 18, height = 18, units = "cm", dpi=300)
+
+
+# core_protected_areas  map 
+r<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/2022_protected_areas/CoreProtectedAreas.tif") 
+CoreProtectedAreas_sa <- r |> #  replace NA by 0
+  is.na() |>
+  terra::ifel(0,r) 
+
+CoreProtectedAreas_map_sa<-ggplot() +
+  tidyterra::geom_spatraster(data=as.factor(CoreProtectedAreas_sa)) +
+  scale_fill_manual(values=c("grey","lightgreen"),
+                    labels=c("no","yes")) +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="Core protected areas") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+CoreProtectedAreas_map_sa
+
+# create 250 random points in your study area
+set.seed(123)
+rpoints <- terra::spatSample(studyarea, size = 250, 
+                             method = "random")
+
+# plot the points
+rpoints_map_sa<-ggplot() +
+  tidyterra::geom_spatvector(data=rpoints, size=0.5) +
+  tidyterra::geom_spatvector(data=protected_areas,
+                             fill=NA,linewidth=0.5) +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA,linewidth=0.5,col="red") +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="lightblue",linewidth=0.5) +
+  tidyterra::geom_spatvector(data=rivers,
+                             col="blue",linewidth=0.5) +
+  labs(title="250 random points") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+rpoints_map_sa
+
+# combine the maps with patchwork
+all_maps_sa<-woody_map_sa +dist2river_map_sa + elevation_map_sa + 
+  CoreProtectedAreas_map_sa + rainfall_map_sa + 
+  cec_map_sa + burnfreq_map_sa + landform_map_h_sa + rpoints_map_sa +
+  patchwork::plot_layout(ncol=3)
 all_maps_sa
-# ggsave("./figures/all_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
-
-# make a soil fertility map
-soil_fertility_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/Soil fertility/CEC_5_15cm_SoilFertility.tif")
-
-map_soil_fertility_sa<-ggplot() +
-  tidyterra::geom_spatraster(data=soil_fertility_sa) +
-  scale_fill_gradientn(colours = pal_zissou2,
-                       limits=c(121,301),
-                       oob=squish,
-                       name="Soil fertility") +
-  tidyterra::geom_spatvector(data = protected_areas,fill=NA, linewidth=0.7) +
-  tidyterra::geom_spatvector(data=rivers,linewidth=0.3,col="blue") +
-  labs(title = "Soil fertility") +
-  coord_sf(xlim=xlimits,ylim=ylimits, # set bounding box
-           expand=F,
-           datum=sf::st_crs(32736)) +   # keep in original projected coordinates
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +   # Remove axis coordinate labels
-  ggspatial::annotation_scale(  # Add a scale bar
-    location = "bl",             # Position: bottom left
-    width_hint = 0.2)             # Adjust width of the scale bar +
-map_soil_fertility_sa
-
-
-more_maps_sa<-woody_map_sa + map_dist2river_sa + map_soil_fertility_sa +
-  patchwork::plot_layout(ncol=2)
-more_maps_sa
-# ggsave("./figures/more_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
-
-
-# make a soil fertility map
-burning_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/Burning/BurnFreq.tif")
-
-map_burning_sa<-ggplot() +
-  tidyterra::geom_spatraster(data=burning_sa) +
-  scale_fill_gradientn(colours = pal_zissou2,
-                       limits=c(0,21),
-                       oob=squish,
-                       name="Burn frequency") +
-  tidyterra::geom_spatvector(data = protected_areas,fill=NA, linewidth=0.7) +
-  tidyterra::geom_spatvector(data=rivers,linewidth=0.3,col="blue") +
-  labs(title = "Burning") +
-  coord_sf(xlim=xlimits,ylim=ylimits, # set bounding box
-           expand=F,
-           datum=sf::st_crs(32736)) +   # keep in original projected coordinates
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +   # Remove axis coordinate labels
-  ggspatial::annotation_scale(  # Add a scale bar
-    location = "bl",             # Position: bottom left
-    width_hint = 0.2)             # Adjust width of the scale bar +
-map_burning_sa
-
-
-evenmore_maps_sa<-woody_map_sa + map_dist2river_sa + map_soil_fertility_sa + map_burning_sa +
-  patchwork::plot_layout(ncol=2)
-evenmore_maps_sa
-# ggsave("./figures/evenmore_maps_sa.png", width = 18, height = 18, units = "cm",dpi=300)
+# ggsave("./figures/all_maps_sa.png", width = 297, height = 210, units = "mm",dpi=300)
 
 # extract your the values of the different raster layers to the points
 
