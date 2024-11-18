@@ -138,6 +138,7 @@ elevation_map
 # can put them together, but not really nice
 woody_map + elevation_map
 
+
 # plot the rainfall map
 rainfall_map<-ggplot() +
   tidyterra::geom_spatraster(data=rainfall) +
@@ -187,7 +188,7 @@ saExt # why are the last four 0? UTM of 10 km
 woody_sa<-terra::crop(woodybiom,saExt)
 
 woody_map_sa<-ggplot() +
-  tidyterra::geom_spatraster(data=woodybiom_sa) +
+  tidyterra::geom_spatraster(data=woody_sa) +
   scale_fill_gradientn(colors=rev(terrain.colors(6)),
                        limits=c(0.77,6.55), # see in qgis
                        oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
