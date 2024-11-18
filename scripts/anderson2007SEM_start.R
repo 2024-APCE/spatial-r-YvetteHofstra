@@ -10,6 +10,7 @@ rm(list = ls()) # clear environment
 
 library(tidyverse)
 # load the lavaan library
+install.packages("lavaan")
 library(lavaan)
 
 # key variables of interest: 
@@ -60,10 +61,8 @@ psych::pairs.panels(Anderson2007std %>% select(BIOMASS,RES_LHU,FIRE_FRQ,NMS,
 # goodness of fit (should be >0.9): CFI and TLI
 # badness of fit: ( should be <0.1): RMSEA, SRMR
 
-<<<<<<< HEAD
 # visualise the model
-=======
->>>>>>> 8a237fe2317acaad42b557f15ab08d729405ba65
+
 
 # also explore the models as shown in fig 5b and 5c of the Anderson2007 paper
 # so repeat the model for leaf P content
