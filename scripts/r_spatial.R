@@ -529,6 +529,9 @@ pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
   as_tibble()
 pointdata
 
+getwd()
+readr::write_csv(pointdata,"pointdata.csv")
+
 # no NA values, but my study area is fine already
 pointdata<-pointdata[complete.cases(pointdata),]
 complete.cases(pointdata)
