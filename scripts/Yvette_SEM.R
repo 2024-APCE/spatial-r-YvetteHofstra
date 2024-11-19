@@ -6,6 +6,7 @@
 rm(list = ls()) # clear environment
 
 library(tidyverse)
+library(dplyr)
 # load the lavaan library
 # install.packages("lavaan")
 library(lavaan)
@@ -24,16 +25,17 @@ SEMdatastd
 # note that this does not affect the relations between the variables, only the scales  
 
 # make a pairs panel to inspect linearity of relations and expected normality of residuals
-psych::pairs.panels(SEMdata %>% select(burnfreq,dist2river,cec,
+psych::pairs.panels(SEMdata %>% dplyr::select(burnfreq,dist2river,cec,
                                             rainfall,elevation,hills),
                     stars = T, ellipses = F)
-psych::pairs.panels(SEMdatastd %>% select(burnfreq,dist2river,cec,
-                                          rainfall,elevation,hills,woody),
+
+psych::pairs.panels(SEMdatastd %>% dplyr::select(burnfreq,dist2river,cec,
+                                          rainfall,elevation,hills,CorProtAr,woody),
                     stars = T, ellipses = F)
 
 # analyse the model (response ~ predictors) with a multiple regression approach
 multreg_std<-lm(woody~burnfreq+dist2river+cec+
-                rainfall+elevation+hills,data=SEMdatastd)
+                rainfall+elevation+hills+CorProtAr,data=SEMdatastd)
 summary(multreg_std)
 
 # visualization of the result: 
@@ -41,12 +43,12 @@ summary(multreg_std)
 
 # Make a lavaan model as hypothesized in the Anderson et al 2007 paper and fit the model 
 Woody_model<-"woody~burnfreq+dist2river+cec+
-                rainfall+elevation+hills
+                rainfall+elevation+hills+CorProtAr
 burnfreq~dist2river+cec+
-                rainfall+elevation+hills
-dist2river~cec+rainfall+elevation+hills
-cec~rainfall+elevation+hills
-rainfall~elevation+hills"
+                rainfall+elevation+hills+CorProtAr
+dist2river~cec+rainfall+elevation+hills+CorProtAr
+cec~rainfall+elevation+hills+CorProtAr
+rainfall~elevation+hills+CorProtAr"
 Woody_model
 Woody_fit<-lavaan::sem(Woody_model,data=SEMdatastd)
 
