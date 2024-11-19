@@ -125,16 +125,11 @@ allplots
 ####### Combine all models into a single piecewise SEM
 psem_model <- piecewiseSEM::psem(model_woody,
                                  model_burnfreq,
-                                 model_dist2river,
                                  model_rainfall)
 
 # Summarize the SEM results
 summary(psem_model)
 
-summary(SEMdatastd)
-any(is.na(SEMdatastd))  # Check for missing values
-
-          
 # a Significant (P<0.05) global goodness of fit means that your model does not fit well, 
 # indicating potential problems like missing paths, mis-specfied relations, 
 # or unaccounted-for correlations
