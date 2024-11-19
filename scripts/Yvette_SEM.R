@@ -65,3 +65,8 @@ lavaanPlot(model = Woody_fit,
            stand = TRUE,          # Use standardized coefficients
            graph_options = list(rankdir = "LR"),  # Top-to-bottom layout
            stars = "regress")     # Add stars for significant paths
+
+
+
+
+
