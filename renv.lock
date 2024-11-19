@@ -1265,6 +1265,22 @@
       ],
       "Hash": "78573997f3acd282f34c626ffb6a906d"
     },
+    "lavaanPlot": {
+      "Package": "lavaanPlot",
+      "Version": "0.8.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "DiagrammeR",
+        "dplyr",
+        "lavaan",
+        "magrittr",
+        "purrr",
+        "rlang",
+        "stringr"
+      ],
+      "Hash": "1822b6018c009e6cf9b862b3f16a50f0"
+    },
     "lifecycle": {
       "Package": "lifecycle",
       "Version": "1.0.4",
