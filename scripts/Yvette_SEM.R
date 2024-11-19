@@ -32,7 +32,7 @@ psych::pairs.panels(SEMdata %>% select(burnfreq,dist2river,cec,
                                             rainfall,elevation,hills),
                     stars = T, ellipses = F)
 psych::pairs.panels(SEMdatastd %>% select(burnfreq,dist2river,cec,
-                                          rainfall,elevation,hills),
+                                          rainfall,elevation,hills, woody),
                     stars = T, ellipses = F)
 
 # analyse the model (response ~ predictors) with a multiple regression approach
