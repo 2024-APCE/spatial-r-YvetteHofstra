@@ -1,10 +1,6 @@
 # Analysis woody cover
 #### STRUCTURAL EQUATION MODELLING USING LAVAAN
 
-# analysis of Anderson 2007 dataset
-# Paper:
-# browseURL("https://drive.google.com/file/d/1aasI7uIFj7zcjuu0A3QhPDU4X-oQtcnx/view?usp=sharing")
-
 # restore libraries
 
 rm(list = ls()) # clear environment
@@ -32,7 +28,7 @@ psych::pairs.panels(SEMdata %>% select(burnfreq,dist2river,cec,
                                             rainfall,elevation,hills),
                     stars = T, ellipses = F)
 psych::pairs.panels(SEMdatastd %>% select(burnfreq,dist2river,cec,
-                                          rainfall,elevation,hills, woody),
+                                          rainfall,elevation,hills,woody),
                     stars = T, ellipses = F)
 
 # analyse the model (response ~ predictors) with a multiple regression approach
