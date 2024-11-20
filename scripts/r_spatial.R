@@ -186,11 +186,12 @@ saExt # why are the last four 0? UTM of 10 km
 
 # crop the woody biomass to the extent of the studyarea
 woody_sa<-terra::crop(woodybiom,saExt)
+woody_sa
 
 woody_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=woody_sa) +
   scale_fill_gradientn(colors=rev(terrain.colors(6)),
-                       limits=c(0.77,6.55), # see in qgis
+                       limits=c(-0.6,25), # see in qgis
                        oob=squish, # everything larger than the used scale is the largest color value, don't omit the values.
                        name="TBA/ha") +
   tidyterra::geom_spatvector(data=protected_areas,
@@ -214,22 +215,23 @@ woody_map_sa
 
 # Elevation map
 elevation_sa<-terra::crop(elevation,saExt) # crop to study area
+elevation_sa
 
 elevation_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=elevation_sa) +
   scale_fill_gradientn(colours=terrain.colors(10),
-                       limits=c(1300,2100),
+                       limits=c(1400,2050),
                        oob=squish,
-                       name="meters") +
+                       name="Meters") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="elevation") +
+  labs(title="Elevation") +
   coord_sf(xlimits,ylimits,datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank()) +
@@ -239,23 +241,24 @@ elevation_map_sa
 
 
 # plot the rainfall map study area
-# plot rainfall map for the study area
 # first you need to increase the raster resolution to 30 m
 # Define the extent and resolution for the new raster
 rainfall_30m <- rast(terra::ext(rainfall), resolution = 30, crs = crs(rainfall))
 # Resample the raster to 30m resolution
 rainfall_30m <- terra::resample(rainfall, rainfall_30m, method = "bilinear")  
 rainfall_sa<-terra::crop(rainfall_30m,saExt) # crop to study area
+rainfall_sa
+
 rainfall_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=rainfall_sa) +
   scale_fill_gradientn(colours=pal_zissou1,
-                       limits=c(650,1000),
+                       limits=c(740,950),
                        oob=squish,
                        name="mm/yr") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
@@ -270,19 +273,19 @@ rainfall_map_sa
 # ggsave("./figures/rainfall_map_sa.png",width = 18, height = 18, units = "cm", dpi=300)
 
 # make distance to river map
-# dist2river_sa<-terra::rast("./_MyData/rivers/DistanceToRiver.tif")
 dist2river_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/2022_rivers/DistanceToRiver20sqm.tif")
+dist2river_sa
 
 dist2river_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=dist2river_sa) +
   scale_fill_gradientn(colours=topo.colors(6),
-                       limits=c(0,6000),
+                       limits=c(0,5600),
                        oob=squish,
-                       name="meters") +
+                       name="Meters") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
@@ -299,22 +302,23 @@ dist2river_map_sa
 
 # burning frequency map from 2001 - 2016
 burnfreq_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Fire/BurnFreq.tif")
+burnfreq_sa
 
 burnfreq_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=burnfreq_sa) +
   scale_fill_gradientn(colours=pal_zissou2,
                        limits=c(0,16),
                        oob=squish,
-                       name="years\nburned") +
+                       name="Years\nburned") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="n years burned") +
+  labs(title="Number of years burned") +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
@@ -326,21 +330,23 @@ burnfreq_map_sa
 # make a soil fertility map
 cec_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/Soil fertility/CEC_5_15cm_SoilFertility.tif")
 hist(cec_sa)
+cec_sa
+
 cec_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=cec_sa) +
   scale_fill_gradientn(colours=pal_zissou1,
-                       limits=c(121,250),
+                       limits=c(120,305),
                        oob=squish,
                        name="Soil\nCEC\n5-15cm") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="Soil CEC") +
+  labs(title="Soil cation exchange capacity") +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
@@ -351,14 +357,16 @@ cec_map_sa
 
 # landform hills
 landform_h_sa<-terra::rast("C:/APCE 2024/APCE 2024 GIS/apce2024gis/_MyData/Landforms/hills.tif")
+landform_h_sa
+
 landform_map_h_sa<-ggplot() +
   tidyterra::geom_spatraster(data=as.factor(landform_h_sa)) +
   scale_fill_manual(values=c("black","orange"),
-                    labels=c("valleys\nand\nplains","hills")) +
+                    labels=c("Valleys\nand\nplains","Hills")) +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.7) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="green") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
@@ -428,11 +436,11 @@ CoreProtectedAreas_sa <- r |> #  replace NA by 0
 CoreProtectedAreas_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=as.factor(CoreProtectedAreas_sa)) +
   scale_fill_manual(values=c("grey","lightgreen"),
-                    labels=c("no","yes")) +
+                    labels=c("No","Yes")) +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
@@ -457,7 +465,7 @@ rpoints_map_sa<-ggplot() +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
-                             fill=NA,linewidth=0.5,col="red") +
+                             fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
