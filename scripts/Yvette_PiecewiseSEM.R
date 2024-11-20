@@ -167,7 +167,9 @@ summary(psem_model)
 ###########################
 
 # Simplest option (time)
-plot(psem_model) 
+plot(psem_model)
+
+
 
 
 
