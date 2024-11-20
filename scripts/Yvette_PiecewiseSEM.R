@@ -159,24 +159,65 @@ psem_model <- piecewiseSEM::psem(model_woody,
 # Summarize the SEM results
 summary(psem_model)
 
-# a Significant (P<0.05) global goodness of fit means that your model does not fit well, 
-# indicating potential problems like missing paths, mis-specfied relations, 
-# or unaccounted-for correlations
 
-# update the model based on your results
-# significant tests of directed separation could mean a missing direct effect between the variables
+############################
 
-# Best Practices:
-# - Hypothesize Carefully:
-#   Construct the initial model based on theoretical or empirical understanding.
-# - Evaluate d-Separation Results:
-#   Add or adjust paths based on significant independence test results.
-# - Refit and Validate:
-#   Rerun the model after adjustments and recheck the Fisher’s C statistic and independence claims.
-# - Avoid Overfitting:
-#   Add paths only when justified by theory or strong evidence, not purely to improve fit.
-# Common pitfall: 
-# - ignoring significant d-separation tests and failing to modify the model
-# - adding too many variables and pathways, leading to overfitting and loss of parsimony
+# PLOT TRIES #
+
+###########################
+
+# Simplest option (time)
+plot(psem_model) 
+
+
+
+
+
+
+##### Try some adjustments
+p<-plot(psem_model)
+
+p + theme(
+  text = element_text(size = 14),      # Base text size
+  axis.title.x = element_text(size = 12),  # X-axis title size
+  axis.title.y = element_text(size = 12),  # Y-axis title size
+  plot.title = element_text(size = 16, face = "bold")  # Plot title size and bold style
+)
+
+########### Try to manually do something
+#### Not well . . . 
+
+
+library(ggplot2)
+library(ggforce)  # For drawing arrows
+library(patchwork)
+
+# Create a custom plot for SEM
+plot_model <- ggplot() +
+  # Nodes (for each model variable)
+  geom_point(aes(x = 1, y = 5), size = 5, color = "purple") +
+  geom_point(aes(x = 2, y = 3), size = 5, color = "yellow") +
+  geom_point(aes(x = 3, y = 6), size = 5, color = "lightblue") +
+  geom_point(aes(x = 4, y = 8), size = 5, color = "darkblue") +
+  geom_point(aes(x = 5, y = 6), size = 5, color = "red") +
+  geom_point(aes(x = 6, y = 4), size = 5, color = "brown") +
+  # Arrows representing relationships
+  geom_mark_ellipse(aes(x = 1, y = 5, label = "elevation"), label.padding = unit(0.5, "lines")) +
+  geom_mark_ellipse(aes(x = 2, y = 5, label = "hills"), label.padding = unit(0.5, "lines")) +
+  geom_mark_ellipse(aes(x = 3, y = 5, label = "rainfall"), label.padding = unit(0.5, "lines")) +
+  geom_mark_ellipse(aes(x = 1, y = 5, label = "dist2river"), label.padding = unit(0.5, "lines")) +
+  geom_mark_ellipse(aes(x = 1, y = 5, label = "burnfreq"), label.padding = unit(0.5, "lines")) +
+  geom_mark_ellipse(aes(x = 1, y = 5, label = "woody"), label.padding = unit(0.5, "lines")) +
+  # Arrows between nodes
+  geom_segment(aes(x = 1, y = 5, xend = 2, yend = 5), arrow = arrow(length = unit(0.2, "inches"))) +
+  geom_segment(aes(x = 1, y = 5, xend = 3, yend = 5), arrow = arrow(length = unit(0.2, "inches"))) +
+  # Adjust plot limits and themes
+  theme_void() +
+  theme(legend.position = "none")
+
+plot_model
+
+####################################
+
 
 
